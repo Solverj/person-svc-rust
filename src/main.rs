@@ -1,37 +1,32 @@
-mod config;
-mod models;
-
-use actix_web::{HttpServer, App, web, Responder};
 use std::io;
-use crate::models::Person;
-use crate::config::Config;
+
+use actix_web::{App, HttpServer, web};
+use deadpool_postgres::tokio_postgres::NoTls;
 use dotenv::dotenv;
 
-async fn status() -> impl Responder {
-  "{\"status\": \"UP\"}"
-}
+use crate::config::Config;
+use crate::handlers::{get_persons, status};
 
-async fn get_person(_name: web::Path<String>) -> impl Responder {
-  let address = "stuff street 1232, 321321 some state";
-  //println!("{}", address);
-    web::HttpResponse::Ok()
-    .json(Person {name: _name.to_string(), address: address.to_string(), phone: 45801153})
-}
+mod config;
+mod models;
+mod handlers;
+mod db;
+
 
 #[actix_rt::main]
 async fn main() -> io::Result<()> {
+    dotenv().ok();
+    let config = Config::from_env().unwrap();
+    let pool = config.pg.create_pool(NoTls).unwrap();
+    println!("starting server at: http://{}:{}", config.server.host, config.server.port);
 
-  dotenv().ok();
-  let config = Config::from_env().unwrap();
-  println!("starting server at: http://{}:{}", config.server.host, config.server.port);
-
-    HttpServer::new(|| {
-
+    HttpServer::new(move || {
         App::new()
-        .route("/", web::get().to(status))
-        .route("/person/{name}", web::get().to(get_person))
+            .data(pool.clone())
+            .route("/", web::get().to(status))
+            .route("/persons", web::get().to(get_persons))
     })
-    .bind(format!("{}:{}", config.server.host, config.server.port))?
-    .run()
-    .await
+        .bind(format!("{}:{}", config.server.host, config.server.port))?
+        .run()
+        .await
 }
