@@ -1,0 +1,11 @@
+[package]
+name = "person-svc"
+version = "0.1.0"
+authors = ["Stålem, Sølve Rene <k01224@norsk-tipping.no>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-rt = "1.1.1"
+actix-web = "2.0.0"
