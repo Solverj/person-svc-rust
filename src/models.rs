@@ -9,3 +9,10 @@ pub struct Person {
     pub address: String,
     pub phone: i32,
 }
+
+#[derive(Deserialize)]
+pub struct CreatePerson {
+    pub name: String,
+    pub phone: i32,
+    pub address: String
+}

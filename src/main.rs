@@ -5,7 +5,7 @@ use deadpool_postgres::tokio_postgres::NoTls;
 use dotenv::dotenv;
 
 use crate::config::Config;
-use crate::handlers::{get_persons, status};
+use crate::handlers::{get_persons, status, create_person};
 
 mod config;
 mod models;
@@ -25,6 +25,7 @@ async fn main() -> io::Result<()> {
             .data(pool.clone())
             .route("/", web::get().to(status))
             .route("/persons", web::get().to(get_persons))
+            .route("/person", web::post().to(create_person))
     })
         .bind(format!("{}:{}", config.server.host, config.server.port))?
         .run()
