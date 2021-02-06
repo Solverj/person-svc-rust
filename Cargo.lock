@@ -1275,6 +1275,7 @@ dependencies = [
  "deadpool-postgres",
  "dotenv",
  "serde 1.0.123",
+ "serde_json",
  "tokio-pg-mapper",
  "tokio-pg-mapper-derive",
  "tokio-postgres",

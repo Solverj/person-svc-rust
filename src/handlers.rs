@@ -5,7 +5,7 @@ use crate::models::CreatePerson;
 use crate::db;
 
 pub async fn status() -> impl Responder {
-    "{\"status\": \"UP\"}"
+    "{\"status\":\"UP\"}"
 }
 
 pub async fn get_persons(db_pool: web::Data<Pool>) -> impl Responder{
@@ -31,5 +31,30 @@ pub async fn create_person(db_pool: web::Data<Pool>, json: web::Json<CreatePerso
     match result {
         Ok(person) => HttpResponse::Ok().json(person),
         Err(_) => HttpResponse::InternalServerError().into()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+
+    use super::*;
+    use actix_web::{body::Body, test, web, App};
+    use serde_json::json;
+
+#[actix_rt::test]
+async fn test_status() {
+        let mut app = 
+        test::init_service(
+            App::new()
+            .route("/", web::get().to(status))
+        ).await;
+        let req = test::TestRequest::with_header("content-type", "application/json").to_request();
+        let mut resp = test::call_service(&mut app, req).await;
+        let body = resp.take_body();
+        let body = body.as_ref().unwrap();
+        assert!(resp.status().is_success());
+        assert_eq!(
+            &Body::from(json!({"status":"UP"})), body
+        );
     }
 }
